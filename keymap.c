@@ -35,9 +35,10 @@
 
 enum custom_keycodes {
   RGB_SLD = EZ_SAFE_RANGE,
-  HSV_172_255_255,
-  HSV_86_255_128,
-  HSV_27_255_255,
+  ST_MACRO_0,
+  ST_MACRO_1,
+  ST_MACRO_2,
+  ST_MACRO_3,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -46,7 +47,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB,         KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,           TG(1),                                          TG(2),          KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_BSLASH,
     KC_LCTRL,       KC_A,           KC_S,           KC_D,           KC_F,           KC_G,                                                                           KC_H,           KC_J,           KC_K,           KC_L,           KC_SCOLON,      KC_QUOTE,
     KC_LSHIFT,      KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,           KC_HYPR,                                        KC_MEH,         KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       KC_RSHIFT,
-    KC_ESCAPE,      LCTL(KC_S),     LSFT(KC_LALT),  KC_LALT,        KC_LGUI,                                                                                                        KC_RALT,        KC_RGUI,        KC_PLUS,        KC_LBRACKET,    KC_RBRACKET,
+    KC_ESCAPE,      LCTL(KC_S),     LSFT(KC_LALT),  KC_LALT,        KC_LGUI,                                                                                                        KC_RALT,        KC_RGUI,        KC_EQUAL,       KC_LBRACKET,    KC_RBRACKET,
                                                                                                     LSFT(KC_LALT),  KC_LGUI,        KC_LALT,        LCTL(KC_S),
                                                                                                                     KC_UP,          KC_PGUP,
                                                                                     KC_SPACE,       KC_BSPACE,      KC_DOWN,        KC_PGDOWN,      KC_ESCAPE,      KC_ENTER
@@ -57,9 +58,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TRANSPARENT, KC_HASH,        KC_DLR,         KC_LPRN,        KC_RPRN,        KC_GRAVE,                                                                       KC_DOWN,        KC_4,           KC_5,           KC_6,           KC_PLUS,        KC_TRANSPARENT,
     KC_TRANSPARENT, KC_PERC,        KC_CIRC,        KC_LBRACKET,    KC_RBRACKET,    KC_TILD,        KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_AMPR,        KC_1,           KC_2,           KC_3,           KC_BSLASH,      KC_TRANSPARENT,
     KC_TRANSPARENT, KC_EQUAL,       KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                                                                                 KC_TRANSPARENT, KC_DOT,         KC_0,           KC_EQUAL,       KC_TRANSPARENT,
-                                                                                                    RGB_MOD,        HSV_172_255_255,RGB_TOG,        RGB_SLD,
-                                                                                                                    HSV_86_255_128, KC_TRANSPARENT,
-                                                                                    RGB_VAD,        RGB_VAI,        HSV_27_255_255, KC_TRANSPARENT, RGB_HUD,        RGB_HUI
+                                                                                                    ST_MACRO_0,     KC_TRANSPARENT, KC_DLR,         ST_MACRO_1,
+                                                                                                                    LCTL(KC_A),     ST_MACRO_2,
+                                                                                    KC_EXLM,        KC_HASH,        LCTL(KC_E),     ST_MACRO_3,     KC_MINUS,       KC_EQUAL
   ),
   [2] = LAYOUT_ergodox_pretty(
     RESET,          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_AUDIO_MUTE,
@@ -81,6 +82,30 @@ bool suspended = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
+    case ST_MACRO_0:
+    if (record->event.pressed) {
+      SEND_STRING(SS_LSFT(SS_TAP(X_GRAVE)) SS_DELAY(100) SS_TAP(X_SLASH));
+
+    }
+    break;
+    case ST_MACRO_1:
+    if (record->event.pressed) {
+      SEND_STRING(SS_LSFT(SS_TAP(X_4)) SS_DELAY(100) SS_LSFT(SS_TAP(X_9)) SS_DELAY(100) SS_LSFT(SS_TAP(X_0)) SS_DELAY(100) SS_TAP(X_LEFT));
+
+    }
+    break;
+    case ST_MACRO_2:
+    if (record->event.pressed) {
+      SEND_STRING(SS_TAP(X_ESCAPE) SS_DELAY(100) SS_LSFT(SS_TAP(X_SCOLON)) SS_DELAY(100) SS_TAP(X_W) SS_DELAY(100) SS_TAP(X_Q)  SS_DELAY(100) SS_TAP(X_ENTER));
+
+    }
+    break;
+    case ST_MACRO_3:
+    if (record->event.pressed) {
+      SEND_STRING(SS_TAP(X_ESCAPE) SS_DELAY(100) SS_LSFT(SS_TAP(X_SCOLON)) SS_DELAY(100) SS_TAP(X_Q) SS_DELAY(100) SS_LSFT(SS_TAP(X_1))  SS_DELAY(100) SS_TAP(X_ENTER));
+
+    }
+    break;
     case RGB_SLD:
       if (record->event.pressed) {
         rgblight_mode(1);
@@ -89,33 +114,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TOGGLE_LAYER_COLOR:
       if (record->event.pressed) {
         disable_layer_color ^= 1;
-      }
-      return false;
-    case HSV_172_255_255:
-      if (record->event.pressed) {
-        #ifdef RGBLIGHT_ENABLE
-          rgblight_enable();
-          rgblight_mode(1);
-          rgblight_sethsv(172,255,255);
-        #endif
-      }
-      return false;
-    case HSV_86_255_128:
-      if (record->event.pressed) {
-        #ifdef RGBLIGHT_ENABLE
-          rgblight_enable();
-          rgblight_mode(1);
-          rgblight_sethsv(86,255,128);
-        #endif
-      }
-      return false;
-    case HSV_27_255_255:
-      if (record->event.pressed) {
-        #ifdef RGBLIGHT_ENABLE
-          rgblight_enable();
-          rgblight_mode(1);
-          rgblight_sethsv(27,255,255);
-        #endif
       }
       return false;
   }
@@ -165,21 +163,21 @@ uint32_t layer_state_set_user(uint32_t state) {
         if(!disable_layer_color) {
           rgblight_enable_noeeprom();
           rgblight_mode_noeeprom(1);
-          rgblight_sethsv_noeeprom(215,255,131);
+          rgblight_sethsv_noeeprom(34,255,213);
         }
         break;
       case 1:
         if(!disable_layer_color) {
           rgblight_enable_noeeprom();
           rgblight_mode_noeeprom(1);
-          rgblight_sethsv_noeeprom(196,255,255);
+          rgblight_sethsv_noeeprom(181,255,255);
         }
         break;
       case 2:
         if(!disable_layer_color) {
           rgblight_enable_noeeprom();
           rgblight_mode_noeeprom(1);
-          rgblight_sethsv_noeeprom(242,255,193);
+          rgblight_sethsv_noeeprom(255,255,255);
         }
         break;
       default:
